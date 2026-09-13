@@ -1,0 +1,17 @@
+{
+  "name": "escola-musica-app",
+  "version": "0.1.0",
+  "description": "Plataforma de gestão para escola de música de projeto social: professores, responsáveis e gestão.",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node --no-warnings=ExperimentalWarning src/server.js",
+    "dev": "node --no-warnings=ExperimentalWarning --watch src/server.js",
+    "seed": "node --no-warnings=ExperimentalWarning src/seed.js",
+    "test": "node --no-warnings=ExperimentalWarning --test \"test/**/*.test.js\""
+  },
+  "license": "MIT"
+}
