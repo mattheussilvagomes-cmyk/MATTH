@@ -167,6 +167,25 @@ module.exports = function register(router) {
   router.get('/gestao/configuracoes', roleOk, (ctx) => {
     const hasLogo = !!db.getSetting('logo_type', null);
     const demo = db.getSetting('demo_mode', '0') === '1';
+    const { localAddresses } = require('../server');
+    const port = ctx.req.socket.localPort;
+    const host = ctx.req.headers.host || '';
+    const isLocal = /^(localhost|127\.0\.0\.1)(:|$)/.test(host);
+    const mobileCard = card(
+      'Acesso pelo celular',
+      isLocal
+        ? `<p>Professores e responsáveis não precisam instalar nada: basta abrir o endereço no navegador do celular e entrar com o e-mail e a senha cadastrados.</p>
+           <p><strong>Na mesma rede Wi-Fi deste computador</strong>, use um destes endereços:</p>
+           <ul class="list">${localAddresses().map((ip) => `<li><code>http://${ip}:${port}</code></li>`).join('') || '<li class="muted">Nenhuma rede detectada.</li>'}</ul>
+           <p class="small muted">Para funcionar de qualquer lugar (fora da escola), o sistema precisa ser publicado na internet. Veja o arquivo README na pasta do programa.</p>`
+        : `<p>Compartilhe este endereço com professores e responsáveis:</p><p><code>${esc(ctx.url.protocol)}//${esc(host)}</code></p>`
+    ) + card(
+      'Instalar como aplicativo',
+      `<p>No celular, abra o endereço acima no navegador e escolha <strong>Adicionar à tela inicial</strong>:</p>
+       <ul><li><strong>Android (Chrome):</strong> menu ⋮ → "Adicionar à tela inicial" ou "Instalar app".</li>
+       <li><strong>iPhone (Safari):</strong> botão de compartilhar → "Adicionar à Tela de Início".</li></ul>
+       <p class="small muted">Fica um ícone com a logo da escola, abrindo em tela cheia como um app.</p>`
+    );
     const body = `<h1>Configurações</h1><div class="grid grid-2">${card(
       'Escola',
       `<form method="post" action="/gestao/configuracoes" class="form" enctype="multipart/form-data">
@@ -186,7 +205,7 @@ module.exports = function register(router) {
               ${postButton('/gestao/configuracoes/exemplo/remover', 'Remover dados de exemplo', { cls: 'btn btn-danger', confirm: 'Isso apaga TODOS os professores, alunos, responsáveis e registros de exemplo. Os usuários de gestão criados por você são mantidos. Continuar?' })}`
            : ''
        }`
-    )}</div>`;
+    )}${mobileCard}</div>`;
     ctx.render('Configurações', body);
   });
 

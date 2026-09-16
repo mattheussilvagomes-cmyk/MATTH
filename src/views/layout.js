@@ -55,6 +55,11 @@ function page({ title, user, path = '', flash, unread = 0, body, actingAs = null
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title ? `${title} · ${schoolName}` : schoolName)}</title>
 <link rel="stylesheet" href="/public/style.css">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#3b5bdb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="${esc(schoolName)}">
+<link rel="apple-touch-icon" href="${db.getSetting('logo_type', null) ? '/logo' : '/icone.svg'}">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%B5%3C/text%3E%3C/svg%3E">
 </head>
 <body>

@@ -47,6 +47,19 @@ function createServer() {
     const ctx = buildContext(req, res);
     try {
       if (ctx.path.startsWith('/public/')) return serveStatic(ctx);
+      if (ctx.path === '/manifest.webmanifest') {
+        const name = db.schoolName();
+        const hasLogo = !!db.getSetting('logo_type', null);
+        const icon = hasLogo ? `/logo?v=${encodeURIComponent(db.getSetting('logo_version', '1'))}` : '/icone.svg';
+        return ctx.text(200, JSON.stringify({
+          name, short_name: name.length > 12 ? name.slice(0, 12) : name, start_url: '/', display: 'standalone',
+          background_color: '#f4f6fb', theme_color: '#3b5bdb', lang: 'pt-BR',
+          icons: [{ src: icon, sizes: 'any', type: hasLogo ? db.getSetting('logo_type') : 'image/svg+xml', purpose: 'any' }],
+        }), 'application/manifest+json; charset=utf-8');
+      }
+      if (ctx.path === '/icone.svg') {
+        return ctx.text(200, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#3b5bdb"/><text x="256" y="330" font-size="260" text-anchor="middle">🎵</text></svg>`, 'image/svg+xml', { 'Cache-Control': 'public, max-age=86400' });
+      }
       if (ctx.path === '/logo') {
         const logo = db.logo();
         if (!logo) throw new HttpError(404, 'Sem logo');
@@ -82,16 +95,28 @@ function createServer() {
   });
 }
 
+/** Endereços IP locais (para acessar de celulares na mesma rede). */
+function localAddresses() {
+  const os = require('node:os');
+  const out = [];
+  for (const list of Object.values(os.networkInterfaces())) {
+    for (const i of list || []) if (i.family === 'IPv4' && !i.internal) out.push(i.address);
+  }
+  return out;
+}
+
 function start() {
   db.get();
   auth.cleanupExpiredSessions();
   const server = createServer();
   server.listen(config.PORT, () => {
-    console.log(`${config.SCHOOL_NAME} — servidor em http://localhost:${config.PORT}`);
+    console.log(`${db.schoolName()} — servidor ligado.`);
+    console.log(`  Neste computador:            http://localhost:${config.PORT}`);
+    for (const ip of localAddresses()) console.log(`  Celulares na mesma rede Wi-Fi: http://${ip}:${config.PORT}`);
   });
   return server;
 }
 
 if (require.main === module) start();
 
-module.exports = { createServer, start };
+module.exports = { createServer, start, localAddresses };

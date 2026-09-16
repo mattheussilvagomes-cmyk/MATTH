@@ -121,3 +121,17 @@ data/                banco de dados SQLite (ignorado pelo git)
 - Envio de e-mail ou WhatsApp junto às notificações internas.
 - Recuperação de senha por e-mail.
 - Múltiplas escolas/unidades e configuração da grade de horários pela interface.
+
+## Acesso pelo celular (professores e responsáveis)
+
+Só **um** computador roda o sistema. Todo mundo acessa pelo navegador do celular, sem instalar nada.
+Em **Configurações** a gestão vê o endereço para compartilhar e as instruções de "Adicionar à tela inicial",
+que deixa um ícone com a logo da escola como se fosse um app.
+
+- **Dentro da escola (mesma rede Wi-Fi):** deixe o computador ligado com o `iniciar` aberto e use o
+  endereço `http://IP-do-computador:3000` mostrado na janela preta e em Configurações.
+- **De qualquer lugar:** publique o sistema num servidor na internet. Ele é leve (sem dependências,
+  banco SQLite em um arquivo), então roda em qualquer serviço que aceite Node.js 22 ou Docker.
+  Há um `Dockerfile` pronto; monte um disco persistente em `/app/data` para o banco não se perder,
+  defina `SESSION_SECRET` e use HTTPS (os serviços abaixo já fornecem).
+  Opções simples: Render, Railway, Fly.io ou uma VPS pequena (Hetzner, DigitalOcean, Oracle Cloud gratuito).
