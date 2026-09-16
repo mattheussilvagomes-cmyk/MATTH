@@ -77,6 +77,7 @@ function setupPage(ctx, error) {
       <h3>Acesso da gestão</h3>
       ${field('Seu nome', input('nome', b.nome || '', { required: true }))}
       ${field('Seu e-mail (será o login)', input('email', b.email || '', { type: 'email', required: true }))}
+      ${field('Telefone / WhatsApp', input('telefone', b.telefone || '', { type: 'tel', placeholder: '(11) 99999-9999' }))}
       <div class="form-row">${field('Senha', input('senha', '', { type: 'password', required: true }), 'Mínimo de 6 caracteres.')}${field('Confirmar senha', input('confirmar', '', { type: 'password', required: true }))}</div>
       <label class="check"><input type="checkbox" name="exemplo" value="1" ${b.exemplo === '1' ? 'checked' : ''}><span><strong>Incluir dados de exemplo</strong><br><span class="hint">Cria professores, alunos e responsáveis fictícios (senha 123456) para você explorar o sistema. Pode apagar depois.</span></span></label>
       <div><button class="btn" type="submit">Concluir configuração</button></div>
@@ -107,8 +108,8 @@ module.exports = function register(router) {
       saveLogo(b._files);
       const r = db
         .get()
-        .prepare("INSERT INTO users(name, email, password_hash, role) VALUES (?, ?, ?, 'GESTAO')")
-        .run(nome, email, auth.hashPassword(senha));
+        .prepare("INSERT INTO users(name, email, password_hash, role, phone) VALUES (?, ?, ?, 'GESTAO', ?)")
+        .run(nome, email, auth.hashPassword(senha), String(b.telefone || '').trim() || null);
       const id = Number(r.lastInsertRowid);
       audit.log(id, 'CONFIGURACAO_INICIAL', 'settings', null, `Escola: ${escola}; gestão: ${email}`);
       if (b.exemplo === '1') require('../seed').seed(db.get(), { force: true, quiet: true });

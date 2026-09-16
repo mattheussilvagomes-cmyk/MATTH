@@ -65,7 +65,7 @@ module.exports = {
   INSTRUMENTS,
   ROLES,
   ROLE_LABELS,
-  SCHOOL_NAME: process.env.SCHOOL_NAME || 'Escola de Música',
+  SCHOOL_NAME: process.env.SCHOOL_NAME || 'Orquestra Cidadã',
   PORT: Number(process.env.PORT || 3000),
   DATABASE_PATH: process.env.DATABASE_PATH || './data/escola.db',
   SESSION_SECRET: process.env.SESSION_SECRET || 'dev-secret-troque-em-producao',
