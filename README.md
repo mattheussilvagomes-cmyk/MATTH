@@ -7,7 +7,15 @@ presença, avaliações, observações pedagógicas, comunicados, eventos e rema
 Foi construído **sem nenhuma dependência externa**: basta o Node.js 22 (usa o SQLite
 embutido do Node). Isso torna a hospedagem barata e simples, ideal para projetos sociais.
 
-## Como rodar
+## Como rodar (jeito fácil)
+
+1. Instale o Node.js LTS em https://nodejs.org (uma vez só).
+2. Baixe e descompacte esta pasta.
+3. Dê dois cliques em **`iniciar.bat`** (Windows) ou **`iniciar.command`** (Mac).
+   O sistema cria os dados de demonstração, liga o servidor e abre o navegador em http://localhost:3000.
+   Para desligar, feche a janela preta que abriu.
+
+## Como rodar (terminal)
 
 ```bash
 # 1. Requisito: Node.js 22.13 ou mais novo (node -v)
