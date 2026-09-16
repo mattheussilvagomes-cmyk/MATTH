@@ -135,3 +135,16 @@ que deixa um ícone com a logo da escola como se fosse um app.
   Há um `Dockerfile` pronto; monte um disco persistente em `/app/data` para o banco não se perder,
   defina `SESSION_SECRET` e use HTTPS (os serviços abaixo já fornecem).
   Opções simples: Render, Railway, Fly.io ou uma VPS pequena (Hetzner, DigitalOcean, Oracle Cloud gratuito).
+
+### Publicar no Render (passo a passo)
+
+1. Crie uma conta em https://render.com e conecte sua conta do GitHub.
+2. No painel, clique em **New → Blueprint**, escolha o repositório **MATTH** e clique em **Apply**.
+   O arquivo `render.yaml` já define o serviço, o disco persistente (`/app/data`) e a chave de sessão.
+3. Aguarde o primeiro deploy terminar (alguns minutos). O endereço aparece no topo, algo como
+   `https://escola-musica.onrender.com`.
+4. Abra o endereço: a **Configuração inicial** pede nome da escola, logo e o acesso da gestão.
+5. Compartilhe o endereço com professores e responsáveis.
+
+O plano gratuito do Render não tem disco persistente (os dados se perderiam a cada reinício), por isso a
+receita usa o plano Starter com um disco de 1 GB. Confira os valores atuais na tela do Render.

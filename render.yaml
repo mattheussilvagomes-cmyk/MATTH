@@ -1,0 +1,22 @@
+# Receita de publicação no Render (https://render.com).
+# No painel do Render: New → Blueprint → escolha este repositório → Apply.
+# O banco de dados fica no disco persistente montado em /app/data.
+services:
+  - type: web
+    name: escola-musica
+    runtime: docker
+    plan: starter
+    region: ohio
+    branch: claude/music-school-management-app-33hvr0
+    healthCheckPath: /manifest.webmanifest
+    envVars:
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: DATABASE_PATH
+        value: /app/data/escola.db
+      - key: PORT
+        value: "10000"
+    disk:
+      name: dados
+      mountPath: /app/data
+      sizeGB: 1
