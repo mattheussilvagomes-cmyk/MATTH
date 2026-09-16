@@ -165,7 +165,7 @@ module.exports = function register(router) {
 
   // ---------- Configurações da escola ----------
   router.get('/gestao/configuracoes', roleOk, (ctx) => {
-    const hasLogo = !!db.getSetting('logo_type', null);
+    const hasLogo = db.hasLogo();
     const demo = db.getSetting('demo_mode', '0') === '1';
     const { localAddresses } = require('../server');
     const port = ctx.req.socket.localPort;
@@ -192,9 +192,9 @@ module.exports = function register(router) {
         ${field('Nome da escola', input('escola', db.schoolName(), { required: true }), 'Aparece no topo das páginas, na tela de login e nas notificações.')}
         ${field('Máximo de alunos por aula em grupo', input('max_group_size', db.maxGroupSize(), { type: 'number', min: 1, max: 20, required: true }))}
         ${field('Logo', '<input type="file" name="logo" accept="image/*">', 'PNG, JPG ou SVG, até 2 MB. Envie apenas se quiser trocar.')}
-        ${hasLogo ? `<div><img src="/logo?v=${encodeURIComponent(db.getSetting('logo_version', '1'))}" alt="Logo atual" style="max-height:80px;max-width:220px"></div>` : '<p class="muted small">Nenhuma logo cadastrada.</p>'}
+        ${hasLogo ? `<div><img src="/logo?v=${encodeURIComponent(db.logoVersion())}" alt="Logo atual" style="max-height:80px;max-width:220px"></div>` : '<p class="muted small">Nenhuma logo cadastrada.</p>'}
         <div class="actions"><button class="btn" type="submit">Salvar</button></div></form>
-        ${hasLogo ? postButton('/gestao/configuracoes/logo/remover', 'Remover logo', { cls: 'btn btn-ghost btn-sm', confirm: 'Remover a logo atual?' }) : ''}`
+        ${db.getSetting('logo_type', null) ? postButton('/gestao/configuracoes/logo/remover', 'Voltar para a logo padrão', { cls: 'btn btn-ghost btn-sm', confirm: 'Remover a logo enviada e voltar para a padrão?' }) : ''}`
     )}${card(
       'Acesso da gestão',
       `<p>Para trocar o <strong>seu</strong> e-mail de acesso ou a sua senha, use <a href="/perfil">Meu perfil</a> (clique no seu nome no topo).</p>

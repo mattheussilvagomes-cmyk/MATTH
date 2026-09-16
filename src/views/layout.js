@@ -35,8 +35,8 @@ const NAV = {
 
 function brand() {
   const name = db.schoolName();
-  const hasLogo = !!db.getSetting('logo_type', null);
-  return `${hasLogo ? `<img src="/logo?v=${encodeURIComponent(db.getSetting('logo_version', '1'))}" alt="" class="brand-logo">` : '🎵'} ${esc(name)}`;
+  const hasLogo = db.hasLogo();
+  return `${hasLogo ? `<img src="/logo?v=${encodeURIComponent(db.logoVersion())}" alt="" class="brand-logo">` : '🎵'} ${esc(name)}`;
 }
 
 function page({ title, user, path = '', flash, unread = 0, body, actingAs = null }) {
@@ -59,7 +59,7 @@ function page({ title, user, path = '', flash, unread = 0, body, actingAs = null
 <meta name="theme-color" content="#2d4a80">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="${esc(schoolName)}">
-<link rel="apple-touch-icon" href="${db.getSetting('logo_type', null) ? '/logo' : '/icone.svg'}">
+<link rel="apple-touch-icon" href="${db.hasLogo() ? '/logo' : '/icone.svg'}">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%B5%3C/text%3E%3C/svg%3E">
 </head>
 <body>

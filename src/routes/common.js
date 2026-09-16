@@ -29,8 +29,8 @@ function requireRole(...roles) {
 
 function loginPage(ctx, error) {
   const demo = db.getSetting('demo_mode', '0') === '1';
-  const hasLogo = !!db.getSetting('logo_type', null);
-  const body = `<div class="login-box">${hasLogo ? `<img src="/logo?v=${encodeURIComponent(db.getSetting('logo_version', '1'))}" alt="${attr(db.schoolName())}" class="login-logo">` : ''}${card(
+  const hasLogo = db.hasLogo();
+  const body = `<div class="login-box">${hasLogo ? `<img src="/logo?v=${encodeURIComponent(db.logoVersion())}" alt="${attr(db.schoolName())}" class="login-logo">` : ''}${card(
     'Entrar',
     `<p class="muted">Use o e-mail cadastrado pela escola.</p>
     ${error ? `<div class="flash flash-error">${esc(error)}</div>` : ''}

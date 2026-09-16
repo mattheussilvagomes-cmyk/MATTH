@@ -16,6 +16,7 @@ embutido do Node). Isso torna a hospedagem barata e simples, ideal para projetos
 4. Na primeira vez aparece a **Configuração inicial**: nome da escola, logo (opcional), seu nome,
    seu e-mail e senha de gestão. Marque "Incluir dados de exemplo" se quiser explorar com dados fictícios.
 5. Depois, em **Configurações** (menu da gestão) você troca nome, logo e o máximo de alunos por aula;
+   também é possível deixar uma logo padrão gravando o arquivo como `public/logo.png` (ou .jpg/.svg);
    em **Meu perfil** (clique no seu nome) troca seu e-mail e senha; e pode remover os dados de exemplo.
 
 Para desligar, feche a janela preta que abriu.

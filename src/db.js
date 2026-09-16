@@ -225,11 +225,38 @@ function schoolName() {
   return getSetting('school_name', config.SCHOOL_NAME);
 }
 
-/** Logo da escola (armazenada no banco). Retorna { type, data } ou null. */
+const LOGO_FILES = [
+  ['logo.png', 'image/png'],
+  ['logo.jpg', 'image/jpeg'],
+  ['logo.jpeg', 'image/jpeg'],
+  ['logo.svg', 'image/svg+xml'],
+  ['logo.webp', 'image/webp'],
+];
+
+/** Logo padrão gravada na pasta public/ (usada quando a gestão ainda não enviou uma pelo sistema). */
+function defaultLogoFile() {
+  for (const [name, type] of LOGO_FILES) {
+    const file = path.join(__dirname, '..', 'public', name);
+    if (fs.existsSync(file)) return { file, type };
+  }
+  return null;
+}
+
+/** Logo da escola: a enviada pelo sistema ou, na falta dela, o arquivo public/logo.*. Retorna { type, data } ou null. */
 function logo() {
   const type = getSetting('logo_type', null);
   const data = getSetting('logo_data', null);
-  return type && data ? { type, data: Buffer.from(data, 'base64') } : null;
+  if (type && data) return { type, data: Buffer.from(data, 'base64') };
+  const def = defaultLogoFile();
+  return def ? { type: def.type, data: fs.readFileSync(def.file) } : null;
+}
+
+function hasLogo() {
+  return !!getSetting('logo_type', null) || !!defaultLogoFile();
+}
+
+function logoVersion() {
+  return getSetting('logo_version', 'padrao');
 }
 
 function hasUsers() {
@@ -253,4 +280,4 @@ function transaction(fn) {
   }
 }
 
-module.exports = { open, get, use, getSetting, setSetting, maxGroupSize, schoolName, logo, hasUsers, transaction, SCHEMA };
+module.exports = { open, get, use, getSetting, setSetting, maxGroupSize, schoolName, logo, hasLogo, logoVersion, hasUsers, transaction, SCHEMA };

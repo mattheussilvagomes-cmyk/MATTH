@@ -49,12 +49,12 @@ function createServer() {
       if (ctx.path.startsWith('/public/')) return serveStatic(ctx);
       if (ctx.path === '/manifest.webmanifest') {
         const name = db.schoolName();
-        const hasLogo = !!db.getSetting('logo_type', null);
-        const icon = hasLogo ? `/logo?v=${encodeURIComponent(db.getSetting('logo_version', '1'))}` : '/icone.svg';
+        const hasLogo = db.hasLogo();
+        const icon = hasLogo ? `/logo?v=${encodeURIComponent(db.logoVersion())}` : '/icone.svg';
         return ctx.text(200, JSON.stringify({
           name, short_name: name.length > 12 ? name.slice(0, 12) : name, start_url: '/', display: 'standalone',
           background_color: '#f4f6fb', theme_color: '#2d4a80', lang: 'pt-BR',
-          icons: [{ src: icon, sizes: 'any', type: hasLogo ? db.getSetting('logo_type') : 'image/svg+xml', purpose: 'any' }],
+          icons: [{ src: icon, sizes: 'any', type: hasLogo ? db.logo().type : 'image/svg+xml', purpose: 'any' }],
         }), 'application/manifest+json; charset=utf-8');
       }
       if (ctx.path === '/icone.svg') {
