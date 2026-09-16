@@ -53,12 +53,12 @@ function createServer() {
         const icon = hasLogo ? `/logo?v=${encodeURIComponent(db.getSetting('logo_version', '1'))}` : '/icone.svg';
         return ctx.text(200, JSON.stringify({
           name, short_name: name.length > 12 ? name.slice(0, 12) : name, start_url: '/', display: 'standalone',
-          background_color: '#f4f6fb', theme_color: '#3b5bdb', lang: 'pt-BR',
+          background_color: '#f4f6fb', theme_color: '#2d4a80', lang: 'pt-BR',
           icons: [{ src: icon, sizes: 'any', type: hasLogo ? db.getSetting('logo_type') : 'image/svg+xml', purpose: 'any' }],
         }), 'application/manifest+json; charset=utf-8');
       }
       if (ctx.path === '/icone.svg') {
-        return ctx.text(200, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#3b5bdb"/><text x="256" y="330" font-size="260" text-anchor="middle">🎵</text></svg>`, 'image/svg+xml', { 'Cache-Control': 'public, max-age=86400' });
+        return ctx.text(200, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#2d4a80"/><text x="256" y="330" font-size="260" text-anchor="middle">🎵</text></svg>`, 'image/svg+xml', { 'Cache-Control': 'public, max-age=86400' });
       }
       if (ctx.path === '/logo') {
         const logo = db.logo();

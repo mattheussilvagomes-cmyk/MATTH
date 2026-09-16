@@ -56,7 +56,7 @@ function page({ title, user, path = '', flash, unread = 0, body, actingAs = null
 <title>${esc(title ? `${title} · ${schoolName}` : schoolName)}</title>
 <link rel="stylesheet" href="/public/style.css">
 <link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#3b5bdb">
+<meta name="theme-color" content="#2d4a80">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="${esc(schoolName)}">
 <link rel="apple-touch-icon" href="${db.getSetting('logo_type', null) ? '/logo' : '/icone.svg'}">

@@ -4,15 +4,17 @@
   --text: #1c2333;
   --muted: #5b6579;
   --line: #dfe4ee;
-  --primary: #3b5bdb;
-  --primary-dark: #2f49b0;
-  --primary-soft: #e8edfd;
+  /* Cores da identidade visual da Orquestra Cidadã: azul-marinho e vermelho. */
+  --primary: #2d4a80;
+  --primary-dark: #1f3660;
+  --primary-soft: #e6ecf6;
+  --accent: #ee3a3f;
   --ok: #1f8a4c;
   --ok-soft: #e3f5ea;
   --warn: #b7791f;
   --warn-soft: #fbf0d9;
-  --danger: #c0392b;
-  --danger-soft: #fbe4e1;
+  --danger: #e0303a;
+  --danger-soft: #fde5e6;
   --radius: 10px;
   --shadow: 0 1px 2px rgba(20, 30, 60, 0.06), 0 4px 14px rgba(20, 30, 60, 0.05);
 }
@@ -41,7 +43,7 @@ p { margin: 0 0 0.75rem; }
 /* Barra superior */
 .topbar {
   display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
-  padding: 0.6rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--line);
+  padding: 0.6rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--line); border-top: 4px solid var(--accent);
   position: sticky; top: 0; z-index: 20;
 }
 .brand { font-weight: 700; font-size: 1.05rem; color: var(--text); white-space: nowrap; display: flex; align-items: center; gap: 0.5rem; }
@@ -55,7 +57,7 @@ p { margin: 0 0 0.75rem; }
 .nav-toggle { display: none; background: none; border: 1px solid var(--line); border-radius: 8px; font-size: 1.2rem; padding: 0.2rem 0.6rem; cursor: pointer; }
 .bell { position: relative; font-size: 1.2rem; text-decoration: none; }
 .bell-count {
-  position: absolute; top: -6px; right: -10px; background: var(--danger); color: #fff;
+  position: absolute; top: -6px; right: -10px; background: var(--accent); color: #fff;
   font-size: 0.7rem; font-weight: 700; border-radius: 999px; padding: 0 5px; min-width: 18px; text-align: center;
 }
 .user-chip { display: flex; flex-direction: column; line-height: 1.15; color: var(--text); }
@@ -114,6 +116,8 @@ textarea { resize: vertical; }
 .btn-danger:hover { background: var(--danger); color: #fff; }
 .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.82rem; }
 .btn-ok { background: var(--ok); border-color: var(--ok); }
+.btn-accent { background: var(--accent); border-color: var(--accent); }
+.btn-accent:hover { background: #c92b30; }
 .btn-ok:hover { background: #17703c; }
 
 /* Tabelas */
@@ -133,7 +137,7 @@ tr:hover td { background: #fafbfe; }
 .flash { padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid transparent; }
 .flash-success { background: var(--ok-soft); color: var(--ok); border-color: #bfe6cd; }
 .flash-error { background: var(--danger-soft); color: var(--danger); border-color: #f2c4bf; }
-.flash-info { background: var(--primary-soft); color: var(--primary-dark); border-color: #c9d4fa; }
+.flash-info { background: var(--primary-soft); color: var(--primary-dark); border-color: #c3d0e6; }
 .notice { background: var(--warn-soft); border: 1px solid #ecd9ad; color: #6b4a0f; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; }
 
 /* Agenda semanal */
@@ -144,7 +148,7 @@ tr:hover td { background: #fafbfe; }
 .sc-cell { display: block; min-height: 70px; padding: 0.45rem 0.55rem; border-radius: 6px; border: 1px dashed var(--line); background: #fff; color: var(--text); font-size: 0.85rem; }
 .sc-cell:hover { border-color: var(--primary); text-decoration: none; }
 .sc-cell.free { color: var(--muted); background: #fafbfe; }
-.sc-cell.group { border: 1px solid #c9d4fa; background: var(--primary-soft); }
+.sc-cell.group { border: 1px solid #c3d0e6; background: var(--primary-soft); }
 .sc-cell.individual { border: 1px solid #ecd9ad; background: var(--warn-soft); }
 .sc-cell.today-col { box-shadow: inset 0 0 0 2px var(--ok-soft); }
 .sc-cell .sc-title { font-weight: 700; font-size: 0.8rem; display: flex; justify-content: space-between; gap: 0.3rem; }
@@ -153,7 +157,7 @@ tr:hover td { background: #fafbfe; }
 .sc-cell .sc-teacher { font-weight: 600; font-size: 0.78rem; margin-top: 0.25rem; }
 .legend { display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.82rem; color: var(--muted); margin: 0.5rem 0 0; }
 .legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 0.35rem; vertical-align: -1px; }
-.legend .l-group::before { background: var(--primary-soft); border: 1px solid #c9d4fa; }
+.legend .l-group::before { background: var(--primary-soft); border: 1px solid #c3d0e6; }
 .legend .l-ind::before { background: var(--warn-soft); border: 1px solid #ecd9ad; }
 .legend .l-free::before { background: #fafbfe; border: 1px dashed var(--line); }
 
