@@ -41,8 +41,67 @@ function readBody(req, limit = 1024 * 1024) {
   });
 }
 
+function readBodyBuffer(req, limit) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+    req.on('data', (chunk) => {
+      size += chunk.length;
+      if (size > limit) {
+        reject(new HttpError(413, 'Arquivo muito grande (máximo 3 MB).'));
+        req.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on('end', () => resolve(Buffer.concat(chunks)));
+    req.on('error', reject);
+  });
+}
+
+/** Interpreta multipart/form-data (campos + arquivos) sem dependências. */
+function parseMultipart(buffer, boundary) {
+  const fields = {};
+  const files = {};
+  const delimiter = Buffer.from(`--${boundary}`);
+  let start = buffer.indexOf(delimiter);
+  while (start !== -1) {
+    start += delimiter.length;
+    if (buffer.slice(start, start + 2).toString() === '--') break;
+    const headerEnd = buffer.indexOf('\r\n\r\n', start);
+    if (headerEnd === -1) break;
+    const headers = buffer.slice(start, headerEnd).toString('utf8');
+    let end = buffer.indexOf(delimiter, headerEnd);
+    if (end === -1) break;
+    const content = buffer.slice(headerEnd + 4, end - 2); // remove \r\n final
+    const nameMatch = /name="([^"]*)"/.exec(headers);
+    const fileMatch = /filename="([^"]*)"/.exec(headers);
+    const typeMatch = /Content-Type:\s*([^\r\n]+)/i.exec(headers);
+    if (nameMatch) {
+      const name = nameMatch[1];
+      if (fileMatch) {
+        if (fileMatch[1]) files[name] = { filename: fileMatch[1], type: typeMatch ? typeMatch[1].trim() : 'application/octet-stream', buffer: content };
+      } else if (fields[name] !== undefined) {
+        fields[name] = [].concat(fields[name], content.toString('utf8'));
+      } else {
+        fields[name] = content.toString('utf8');
+      }
+    }
+    start = end;
+  }
+  return { fields, files };
+}
+
 async function parseForm(req) {
   const type = req.headers['content-type'] || '';
+  if (type.startsWith('multipart/form-data')) {
+    const m = /boundary=("?)([^";]+)\1/.exec(type);
+    if (!m) throw new HttpError(400, 'Formulário inválido.');
+    const buf = await readBodyBuffer(req, 3 * 1024 * 1024);
+    const { fields, files } = parseMultipart(buf, m[2]);
+    Object.defineProperty(fields, '_files', { value: files, enumerable: false });
+    return fields;
+  }
   const raw = await readBody(req);
   if (type.includes('application/json')) {
     try {
@@ -202,4 +261,4 @@ function checkSameOrigin(req) {
   }
 }
 
-module.exports = { HttpError, Router, buildContext, parseForm, readBody, asArray, checkSameOrigin, parseCookies };
+module.exports = { HttpError, Router, buildContext, parseForm, parseMultipart, readBody, asArray, checkSameOrigin, parseCookies };

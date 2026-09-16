@@ -6,10 +6,6 @@ if ! command -v node >/dev/null 2>&1; then
   read -r -p "Pressione Enter para fechar."
   exit 1
 fi
-if [ ! -f data/escola.db ]; then
-  echo "Criando os dados de demonstração..."
-  npm run seed
-fi
 echo
 echo "Ligando o sistema... O navegador vai abrir em alguns segundos."
 echo "Para desligar, feche esta janela ou pressione Ctrl+C."

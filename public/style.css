@@ -44,7 +44,9 @@ p { margin: 0 0 0.75rem; }
   padding: 0.6rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--line);
   position: sticky; top: 0; z-index: 20;
 }
-.brand { font-weight: 700; font-size: 1.05rem; color: var(--text); white-space: nowrap; }
+.brand { font-weight: 700; font-size: 1.05rem; color: var(--text); white-space: nowrap; display: flex; align-items: center; gap: 0.5rem; }
+.brand-logo { height: 36px; width: auto; max-width: 140px; object-fit: contain; }
+.login-logo { display: block; margin: 0 auto 1rem; max-height: 90px; max-width: 220px; }
 .nav { display: flex; gap: 0.25rem; flex-wrap: wrap; flex: 1; }
 .nav-link { padding: 0.4rem 0.7rem; border-radius: 8px; color: var(--muted); font-weight: 500; white-space: nowrap; }
 .nav-link:hover { background: var(--primary-soft); color: var(--primary); text-decoration: none; }

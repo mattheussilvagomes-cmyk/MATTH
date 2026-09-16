@@ -11,7 +11,7 @@ const students = require('../services/students');
 const attendance = require('../services/attendance');
 const reenrollment = require('../services/reenrollment');
 const { HttpError, asArray } = require('../http');
-const { requireRole } = require('./common');
+const { requireRole, saveLogo } = require('./common');
 const ui = require('../views/ui');
 const sv = require('../views/student');
 const { esc, attr, card, field, input, textarea, select, table, fmtDate, fmtDateTime, fmtGrade, badge, statusBadge, postButton } = ui;
@@ -158,24 +158,74 @@ module.exports = function register(router) {
       }
       html += '</div></div>';
       body += card('Ocupação por horário (todos os professores)', html + `<p class="muted small" style="margin-top:.75rem">Vagas = capacidade teórica (${occ.teachers.length} professor(es) × ${occ.max} alunos por aula em grupo) menos alunos já alocados. Aulas individuais ocupam o horário inteiro do professor.</p>`);
-      body += card(
-        'Configuração',
-        `<form method="post" action="/gestao/configuracoes" class="filters">${field('Máximo de alunos por aula em grupo', input('max_group_size', occ.max, { type: 'number', min: 1, max: 20, required: true }))}<button class="btn btn-secondary" type="submit">Salvar</button></form>`
-      );
+      body += `<p class="muted small">O máximo de alunos por aula em grupo (hoje ${occ.max}) pode ser ajustado em <a href="/gestao/configuracoes">Configurações</a>.</p>`;
     }
     ctx.render('Agenda geral', body);
   });
 
+  // ---------- Configurações da escola ----------
+  router.get('/gestao/configuracoes', roleOk, (ctx) => {
+    const hasLogo = !!db.getSetting('logo_type', null);
+    const demo = db.getSetting('demo_mode', '0') === '1';
+    const body = `<h1>Configurações</h1><div class="grid grid-2">${card(
+      'Escola',
+      `<form method="post" action="/gestao/configuracoes" class="form" enctype="multipart/form-data">
+        ${field('Nome da escola', input('escola', db.schoolName(), { required: true }), 'Aparece no topo das páginas, na tela de login e nas notificações.')}
+        ${field('Máximo de alunos por aula em grupo', input('max_group_size', db.maxGroupSize(), { type: 'number', min: 1, max: 20, required: true }))}
+        ${field('Logo', '<input type="file" name="logo" accept="image/*">', 'PNG, JPG ou SVG, até 2 MB. Envie apenas se quiser trocar.')}
+        ${hasLogo ? `<div><img src="/logo?v=${encodeURIComponent(db.getSetting('logo_version', '1'))}" alt="Logo atual" style="max-height:80px;max-width:220px"></div>` : '<p class="muted small">Nenhuma logo cadastrada.</p>'}
+        <div class="actions"><button class="btn" type="submit">Salvar</button></div></form>
+        ${hasLogo ? postButton('/gestao/configuracoes/logo/remover', 'Remover logo', { cls: 'btn btn-ghost btn-sm', confirm: 'Remover a logo atual?' }) : ''}`
+    )}${card(
+      'Acesso da gestão',
+      `<p>Para trocar o <strong>seu</strong> e-mail de acesso ou a sua senha, use <a href="/perfil">Meu perfil</a> (clique no seu nome no topo).</p>
+       <p>Para criar ou alterar o acesso de outras pessoas da gestão, de professores e de responsáveis, use <a href="/gestao/usuarios">Professores e usuários</a>.</p>
+       ${
+         demo
+           ? `<hr><p><strong>Dados de exemplo ativos.</strong> A tela de login mostra as contas fictícias (senha 123456). Quando terminar de testar, remova-os para começar com a escola real.</p>
+              ${postButton('/gestao/configuracoes/exemplo/remover', 'Remover dados de exemplo', { cls: 'btn btn-danger', confirm: 'Isso apaga TODOS os professores, alunos, responsáveis e registros de exemplo. Os usuários de gestão criados por você são mantidos. Continuar?' })}`
+           : ''
+       }`
+    )}</div>`;
+    ctx.render('Configurações', body);
+  });
+
   router.post('/gestao/configuracoes', roleOk, (ctx) => {
     const v = Number(ctx.body.max_group_size);
-    if (!Number.isInteger(v) || v < 1 || v > 20) {
-      ctx.setFlash('error', 'Valor inválido.');
-    } else {
+    const escola = String(ctx.body.escola || '').trim();
+    try {
+      if (!escola) throw new Error('Informe o nome da escola.');
+      if (!Number.isInteger(v) || v < 1 || v > 20) throw new Error('O máximo de alunos por aula deve ser um número entre 1 e 20.');
+      db.setSetting('school_name', escola);
       db.setSetting('max_group_size', v);
-      audit.log(ctx.user.id, 'CONFIGURACAO_ALTERADA', 'settings', null, `max_group_size = ${v}`);
-      ctx.setFlash('success', 'Configuração salva.');
+      const logoChanged = saveLogo(ctx.body._files);
+      audit.log(ctx.user.id, 'CONFIGURACAO_ALTERADA', 'settings', null, `escola = ${escola}; max_group_size = ${v}${logoChanged ? '; logo atualizada' : ''}`);
+      ctx.setFlash('success', 'Configurações salvas.');
+    } catch (err) {
+      ctx.setFlash('error', err.message);
     }
-    ctx.redirect('/gestao/agenda');
+    ctx.redirect('/gestao/configuracoes');
+  });
+
+  router.post('/gestao/configuracoes/logo/remover', roleOk, (ctx) => {
+    db.get().prepare("DELETE FROM settings WHERE key IN ('logo_type','logo_data','logo_version')").run();
+    audit.log(ctx.user.id, 'CONFIGURACAO_ALTERADA', 'settings', null, 'logo removida');
+    ctx.setFlash('success', 'Logo removida.');
+    ctx.redirect('/gestao/configuracoes');
+  });
+
+  router.post('/gestao/configuracoes/exemplo/remover', roleOk, (ctx) => {
+    // Remove tudo que o seed criou, preservando os usuários de gestão e as configurações da escola.
+    db.transaction((d) => {
+      for (const t of ['attendance', 'evaluations', 'observations', 'lesson_students', 'lessons', 'student_guardians', 'reenrollments', 'reenrollment_periods', 'students', 'announcements', 'events', 'notifications']) {
+        d.exec(`DELETE FROM ${t}`);
+      }
+      d.prepare("DELETE FROM users WHERE role <> 'GESTAO' OR email LIKE '%@escola.org' AND id <> ?").run(ctx.user.id);
+      d.prepare("DELETE FROM settings WHERE key = 'demo_mode'").run();
+    });
+    audit.log(ctx.user.id, 'DADOS_EXEMPLO_REMOVIDOS', 'settings', null);
+    ctx.setFlash('success', 'Dados de exemplo removidos. Agora cadastre os professores, alunos e responsáveis reais.');
+    ctx.redirect('/gestao');
   });
 
   // ---------- Alunos ----------

@@ -93,3 +93,37 @@ test('professor salva aula pelo formulário e a agenda reflete', async () => {
     assert.equal(csrf.status, 403);
   });
 });
+
+test('primeiro uso: sem usuários redireciona para /configurar e cria a gestão com logo', async () => {
+  const db = require('../src/db');
+  db.use(db.open(':memory:'));
+  await withServer(async (base) => {
+    const first = await fetch(`${base}/login`, { redirect: 'manual' });
+    assert.equal(first.headers.get('location'), '/configurar');
+
+    const form = new FormData();
+    form.set('escola', 'Orquestra Cidadã');
+    form.set('nome', 'Nadia');
+    form.set('email', 'nadia@exemplo.org');
+    form.set('senha', 'segredo1');
+    form.set('confirmar', 'segredo1');
+    form.set('logo', new Blob([Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>')], { type: 'image/svg+xml' }), 'logo.svg');
+    const res = await fetch(`${base}/configurar`, { method: 'POST', body: form, headers: { origin: base }, redirect: 'manual' });
+    assert.equal(res.status, 303);
+    assert.equal(res.headers.get('location'), '/gestao');
+    assert.equal(db.schoolName(), 'Orquestra Cidadã');
+    assert.equal(db.logo().type, 'image/svg+xml');
+
+    const again = await fetch(`${base}/configurar`, { redirect: 'manual' });
+    assert.equal(again.status, 303); // já configurado, não permite refazer
+    const login = await fetch(`${base}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ email: 'nadia@exemplo.org', senha: 'segredo1' }),
+      redirect: 'manual',
+    });
+    assert.equal(login.headers.get('location'), '/gestao');
+    const logo = await fetch(`${base}/logo`);
+    assert.equal(logo.headers.get('content-type'), 'image/svg+xml');
+  });
+});

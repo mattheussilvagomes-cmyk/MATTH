@@ -1,6 +1,7 @@
 'use strict';
 
 const config = require('../config');
+const db = require('../db');
 const { esc, attr, flashHtml } = require('./ui');
 
 const NAV = {
@@ -15,6 +16,7 @@ const NAV = {
     ['/gestao/eventos', 'Eventos'],
     ['/gestao/rematricula', 'Rematrícula'],
     ['/gestao/auditoria', 'Alterações'],
+    ['/gestao/configuracoes', 'Configurações'],
   ],
   PROFESSOR: [
     ['/professor', 'Início'],
@@ -31,8 +33,15 @@ const NAV = {
   ],
 };
 
+function brand() {
+  const name = db.schoolName();
+  const hasLogo = !!db.getSetting('logo_type', null);
+  return `${hasLogo ? `<img src="/logo?v=${encodeURIComponent(db.getSetting('logo_version', '1'))}" alt="" class="brand-logo">` : '🎵'} ${esc(name)}`;
+}
+
 function page({ title, user, path = '', flash, unread = 0, body, actingAs = null }) {
   const nav = user ? NAV[user.role] || [] : [];
+  const schoolName = db.schoolName();
   const navHtml = nav
     .map(([href, label]) => {
       const active = path === href || (href !== '/gestao' && href !== '/professor' && href !== '/responsavel' && path.startsWith(href));
@@ -44,13 +53,13 @@ function page({ title, user, path = '', flash, unread = 0, body, actingAs = null
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${esc(title ? `${title} · ${config.SCHOOL_NAME}` : config.SCHOOL_NAME)}</title>
+<title>${esc(title ? `${title} · ${schoolName}` : schoolName)}</title>
 <link rel="stylesheet" href="/public/style.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%B5%3C/text%3E%3C/svg%3E">
 </head>
 <body>
 <header class="topbar">
-  <a href="/" class="brand">🎵 ${esc(config.SCHOOL_NAME)}</a>
+  <a href="/" class="brand">${brand()}</a>
   ${
     user
       ? `<button class="nav-toggle" type="button" aria-label="Menu" data-nav-toggle>☰</button>
@@ -72,10 +81,10 @@ ${
 ${flashHtml(flash)}
 ${body}
 </main>
-<footer class="footer">${esc(config.SCHOOL_NAME)} · plataforma de gestão escolar</footer>
+<footer class="footer">${esc(schoolName)} · plataforma de gestão escolar</footer>
 <script src="/public/app.js" defer></script>
 </body>
 </html>`;
 }
 
-module.exports = { page, NAV };
+module.exports = { page, NAV, brand };

@@ -25,16 +25,24 @@ const lessons = require('./services/lessons');
 const attendance = require('./services/attendance');
 const reenrollment = require('./services/reenrollment');
 
-function seed(database = db.get()) {
+function seed(database = db.get(), { force = false, quiet = false } = {}) {
   const d = database;
+  const log = quiet ? () => {} : console.log;
   const count = d.prepare('SELECT COUNT(*) AS n FROM users').get().n;
-  if (count > 0) {
+  if (count > 0 && !force) {
     console.log('Banco já possui usuários; nada foi alterado. Use --reset para recriar.');
+    return;
+  }
+  if (d.prepare("SELECT 1 FROM users WHERE email = 'gestao@escola.org'").get()) {
+    console.log('Dados de exemplo já existem; nada foi alterado.');
     return;
   }
   const PASS = auth.hashPassword('123456');
   const insUser = d.prepare('INSERT INTO users(name, email, password_hash, role, phone, instruments) VALUES (?, ?, ?, ?, ?, ?)');
-  const uid = (name, email, role, phone, instruments) => Number(insUser.run(name, email, PASS, role, phone || null, instruments || null).lastInsertRowid);
+  const uid = (name, email, role, phone, instruments) => {
+    if (d.prepare('SELECT 1 FROM users WHERE email = ?').get(email)) email = email.replace('@', '.exemplo@');
+    return Number(insUser.run(name, email, PASS, role, phone || null, instruments || null).lastInsertRowid);
+  };
 
   const gestao = uid('Marina Souza', 'gestao@escola.org', 'GESTAO', '(11) 99999-0001');
   const ana = uid('Ana Ribeiro', 'ana@escola.org', 'PROFESSOR', '(11) 99999-0002', 'Violão, Teoria musical');
@@ -146,10 +154,10 @@ function seed(database = db.get()) {
   d.exec('DELETE FROM notifications WHERE id NOT IN (SELECT id FROM notifications ORDER BY id DESC LIMIT 40)');
   db.setSetting('demo_mode', '1');
 
-  console.log('Dados de demonstração criados. Senha de todos os usuários: 123456');
-  console.log('  Gestão:       gestao@escola.org');
-  console.log('  Professores:  ana@escola.org, bruno@escola.org, celia@escola.org');
-  console.log('  Responsáveis: carla@familia.com, daniel@familia.com, elaine@familia.com, fabio@familia.com, gilda@familia.com');
+  log('Dados de demonstração criados. Senha de todos os usuários: 123456');
+  log('  Gestão:       gestao@escola.org');
+  log('  Professores:  ana@escola.org, bruno@escola.org, celia@escola.org');
+  log('  Responsáveis: carla@familia.com, daniel@familia.com, elaine@familia.com, fabio@familia.com, gilda@familia.com');
 }
 
 if (require.main === module) seed();

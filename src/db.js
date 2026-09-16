@@ -221,6 +221,21 @@ function setSetting(key, value) {
     .run(key, String(value));
 }
 
+function schoolName() {
+  return getSetting('school_name', config.SCHOOL_NAME);
+}
+
+/** Logo da escola (armazenada no banco). Retorna { type, data } ou null. */
+function logo() {
+  const type = getSetting('logo_type', null);
+  const data = getSetting('logo_data', null);
+  return type && data ? { type, data: Buffer.from(data, 'base64') } : null;
+}
+
+function hasUsers() {
+  return get().prepare('SELECT COUNT(*) AS n FROM users').get().n > 0;
+}
+
 function maxGroupSize() {
   return Number(getSetting('max_group_size', config.DEFAULT_MAX_GROUP_SIZE));
 }
@@ -238,4 +253,4 @@ function transaction(fn) {
   }
 }
 
-module.exports = { open, get, use, getSetting, setSetting, maxGroupSize, transaction, SCHEMA };
+module.exports = { open, get, use, getSetting, setSetting, maxGroupSize, schoolName, logo, hasUsers, transaction, SCHEMA };

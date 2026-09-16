@@ -47,6 +47,14 @@ function createServer() {
     const ctx = buildContext(req, res);
     try {
       if (ctx.path.startsWith('/public/')) return serveStatic(ctx);
+      if (ctx.path === '/logo') {
+        const logo = db.logo();
+        if (!logo) throw new HttpError(404, 'Sem logo');
+        res.writeHead(200, { 'Content-Type': logo.type, 'Cache-Control': 'public, max-age=3600' });
+        return res.end(logo.data);
+      }
+      // Primeiro uso: enquanto não existir nenhum usuário, só a tela de configuração inicial é acessível.
+      if (!db.hasUsers() && ctx.path !== '/configurar') return ctx.redirect('/configurar');
       ctx.user = auth.userFromCookie(ctx.cookies.sessao);
       ctx.unread = ctx.user ? notify.unreadCount(ctx.user.id) : 0;
       ctx.render = (title, body, extra = {}) =>

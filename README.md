@@ -12,8 +12,13 @@ embutido do Node). Isso torna a hospedagem barata e simples, ideal para projetos
 1. Instale o Node.js LTS em https://nodejs.org (uma vez só).
 2. Baixe e descompacte esta pasta.
 3. Dê dois cliques em **`iniciar.bat`** (Windows) ou **`iniciar.command`** (Mac).
-   O sistema cria os dados de demonstração, liga o servidor e abre o navegador em http://localhost:3000.
-   Para desligar, feche a janela preta que abriu.
+   O servidor liga e o navegador abre em http://localhost:3000.
+4. Na primeira vez aparece a **Configuração inicial**: nome da escola, logo (opcional), seu nome,
+   seu e-mail e senha de gestão. Marque "Incluir dados de exemplo" se quiser explorar com dados fictícios.
+5. Depois, em **Configurações** (menu da gestão) você troca nome, logo e o máximo de alunos por aula;
+   em **Meu perfil** (clique no seu nome) troca seu e-mail e senha; e pode remover os dados de exemplo.
+
+Para desligar, feche a janela preta que abriu.
 
 ## Como rodar (terminal)
 
@@ -34,15 +39,8 @@ Contas de demonstração (senha `123456` para todas):
 | Professores | ana@escola.org, bruno@escola.org, celia@escola.org  |
 | Responsáveis| carla@familia.com, daniel@familia.com, elaine@familia.com, fabio@familia.com, gilda@familia.com |
 
-Para começar do zero em produção, **não rode o seed**. Crie o primeiro usuário de gestão com:
-
-```bash
-node --no-warnings=ExperimentalWarning -e "
-const db=require('./src/db');const auth=require('./src/auth');
-db.get().prepare('INSERT INTO users(name,email,password_hash,role) VALUES (?,?,?,?)')
-  .run('Nome da Gestão','gestao@suaescola.org',auth.hashPassword('senha-inicial'),'GESTAO');
-console.log('ok')"
-```
+Para começar do zero em produção, **não rode o seed**: ao abrir o sistema pela primeira vez sem usuários,
+a tela de configuração inicial cria o acesso da gestão.
 
 Configurações por variáveis de ambiente (veja `.env.example`): `PORT`, `DATABASE_PATH`,
 `SESSION_SECRET` (troque em produção) e `SCHOOL_NAME`.
@@ -122,4 +120,4 @@ data/                banco de dados SQLite (ignorado pelo git)
 ## Próximos passos sugeridos
 - Envio de e-mail ou WhatsApp junto às notificações internas.
 - Recuperação de senha por e-mail.
-- Múltiplas escolas/unidades e configuração de horários pela interface.
+- Múltiplas escolas/unidades e configuração da grade de horários pela interface.
